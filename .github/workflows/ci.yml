@@ -1,0 +1,55 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13.1
+        env:
+          POSTGRES_DB: postgres_db
+          POSTGRES_PASSWORD: postgres_password
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres_user
+        ports:
+          - 5432:5432
+        # set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://postgres_user:postgres_password@localhost:5432/postgres_db
+      CODE_CLIMATE_TEST_REPORTER_ID: ${{secrets.CODE_CLIMATE_TEST_REPORTER_ID}}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup node 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+          cache: npm
+
+      - run: npm install
+      - run: npm run check-types
+      - run: npm run lint
+
+      - name: Run integration tests
+        if: ${{env.DATABASE_URL}}
+        run: npm run test:coverage
+
+      - name: Publish code coverage to code climate
+        if: ${{env.CODE_CLIMATE_TEST_REPORTER_ID}}
+        uses: paambaati/codeclimate-action@v3.0.0
+        with:
+          debug: true
+        env:
+          CC_TEST_REPORTER_ID: ${{env.CODE_CLIMATE_TEST_REPORTER_ID}}
