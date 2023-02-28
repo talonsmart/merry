@@ -1,6 +1,6 @@
 # Merry - ATS System Core in Node and React
 
-This is an ATS system written in Node + Express on the server and React + Tailwind on the frontend with Docker containerization.
+This is an ATS system written in Node, Express on the server and React + Tailwind on the frontend with Docker containerization.
 
 Its source code was reworked into the internal ATS system for CSAT Solutions. Although that is proprietary, the base it uses and all common functions are open for your own usage and is continuously updated.
 

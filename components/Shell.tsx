@@ -3,7 +3,7 @@ import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ReactNode, useEffect, Fragment } from "react";
+import { ReactNode, useEffect, Fragment, ReactElement } from "react";
 
 const user = {
   name: "Tom Cook",
@@ -27,12 +27,18 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function Shell(props: { children: ReactNode }) {
+export default function Shell(props: { children: ReactNode }):ReactElement {
   const { data: session, status } = useSession();
   const loading = status === "loading";
   const router = useRouter();
 
   useEffect(() => {
+
+    function invalidSession():number {
+        return 0;
+    }
+
+
     if (!loading && !session) {
       router.replace({
         pathname: "/auth/login",
@@ -41,6 +47,14 @@ export default function Shell(props: { children: ReactNode }) {
         },
       });
     }
+
+    if (!loading) {
+        if (invalidSession() === 0) {
+            console.error('invalid session type')
+        }
+    }
+
+    invalidSession()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, session]);
 
